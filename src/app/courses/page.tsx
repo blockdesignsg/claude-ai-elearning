@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { CourseCard } from '@/components/CourseCard';
 import { courses } from '@/lib/courses';
 
-type DifficultyFilter = 'all' | 'beginner' | 'intermediate' | 'advanced';
+type DifficultyFilter = 'all' | 1 | 2 | 3;
 
 export default function CoursesPage() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyFilter>('all');
@@ -37,23 +37,22 @@ export default function CoursesPage() {
               難易度で絞る
             </h3>
             <div className="flex flex-wrap gap-3">
-              {['all', 'beginner', 'intermediate', 'advanced'].map((level) => (
+              {[
+                { value: 'all' as DifficultyFilter, label: 'すべて' },
+                { value: 1 as DifficultyFilter, label: '初級' },
+                { value: 2 as DifficultyFilter, label: '中級' },
+                { value: 3 as DifficultyFilter, label: '上級' },
+              ].map((level) => (
                 <button
-                  key={level}
-                  onClick={() => setSelectedDifficulty(level as DifficultyFilter)}
+                  key={String(level.value)}
+                  onClick={() => setSelectedDifficulty(level.value)}
                   className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    selectedDifficulty === level
+                    selectedDifficulty === level.value
                       ? 'bg-blue-600 text-white'
                       : 'bg-slate-100 text-foreground hover:bg-slate-200'
                   }`}
                 >
-                  {level === 'all'
-                    ? 'すべて'
-                    : level === 'beginner'
-                      ? '初級'
-                      : level === 'intermediate'
-                        ? '中級'
-                        : '上級'}
+                  {level.label}
                 </button>
               ))}
             </div>

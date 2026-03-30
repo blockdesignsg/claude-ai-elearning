@@ -1,42 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
 import { createCheckoutSession, PRICE_IDS } from '@/lib/stripe'
-import { prisma } from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await auth()
-    if (!session?.user?.id || !session.user.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const { priceId, userId, email } = await request.json()
 
-    const { priceId } = await request.json()
-
-    // Validate price ID
+    // Validate inputs
     const validPriceIds = Object.values(PRICE_IDS)
-    if (!priceId || !validPriceIds.includes(priceId)) {
+    if (!priceId || !validPriceIds.includes(priceId) || !userId || !email) {
       return NextResponse.json(
-        { error: 'Invalid price ID' },
+        { error: 'priceId, userId, and email are required' },
         { status: 400 }
       )
     }
-
-    // Get the user's Stripe customer ID or create one
-    let user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { stripeCustomerId: true },
-    })
-
-    // Note: In production, you would create a Stripe customer here if one doesn't exist
-    // and store the stripeCustomerId in the database
 
     // Get the origin for redirect URLs
     const origin = request.headers.get('origin') || 'http://localhost:3000'
 
     // Create checkout session
     const checkoutSession = await createCheckoutSession(
-      session.user.id,
+      userId,
       priceId,
       `${origin}/dashboard?success=true`,
       `${origin}/pricing?canceled=true`

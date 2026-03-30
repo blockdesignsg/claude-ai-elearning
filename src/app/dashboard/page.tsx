@@ -108,7 +108,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-slate-600">
-                      {stat.course.lessons} レッスン
+                      {stat.course.lessonCount} レッスン
                     </span>
                     <span className="text-blue-600 font-medium flex items-center">
                       続きを学ぶ

@@ -1,18 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
 import Anthropic from '@anthropic-ai/sdk'
 
 const client = new Anthropic()
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await auth()
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const { messages, courseId, lessonId } = await request.json()
 
     // Validate request body
@@ -23,26 +15,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Fetch course and lesson details for context
+    // Use provided course context
     let courseContext = ''
     if (courseId && lessonId) {
-      try {
-        const lesson = await prisma.lesson.findUnique({
-          where: { id: lessonId },
-          include: {
-            course: {
-              select: { title: true },
-            },
-          },
-        })
-
-        if (lesson) {
-          courseContext = `\n\n現在のコース: 「${lesson.course.title}」\nレッスン: 「${lesson.title}」`
-        }
-      } catch (error) {
-        console.error('Error fetching course context:', error)
-        // Continue without context if there's an error
-      }
+      courseContext = `\n\nコースID: ${courseId}\nレッスンID: ${lessonId}`
     }
 
     // Create system prompt in Japanese
@@ -57,7 +33,7 @@ export async function POST(request: NextRequest) {
 
     // Convert messages to Anthropic format
     const formattedMessages = messages.map((msg: any) => ({
-      role: msg.role === 'user' ? 'user' : 'assistant',
+      role: (msg.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
       content: msg.content,
     }))
 

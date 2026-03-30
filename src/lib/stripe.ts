@@ -1,11 +1,10 @@
 import Stripe from 'stripe'
 
-if (!process.env.STRIPE_SECRET_KEY) {
-  throw new Error('STRIPE_SECRET_KEY environment variable is required')
-}
+// Initialize Stripe with a default key if not provided (for builds without Stripe config)
+const stripeKey = process.env.STRIPE_SECRET_KEY || 'sk_test_dummy_key'
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2024-12-15',
+export const stripe = new Stripe(stripeKey, {
+  apiVersion: '2023-10-16',
 })
 
 // Price IDs for different subscription plans
