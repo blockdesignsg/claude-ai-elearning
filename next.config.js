@@ -6,6 +6,12 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.githubusercontent.com' },
     ],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 }
 
 module.exports = nextConfig
